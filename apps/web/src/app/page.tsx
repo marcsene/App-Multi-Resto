@@ -13,7 +13,6 @@ import OrdersTable from "@/components/dashboard/OrdersTable";
 import TablesPanel from "@/components/dashboard/TablesPanel";
 
 import {
-  ArrowUpRight,
   CalendarDays,
   Plus,
 } from "lucide-react";
@@ -49,6 +48,7 @@ export default function DashboardPage() {
         />
 
         <div className="page-content">
+
           {/* BIENVENIDA */}
           <div className="welcome-row">
             <div>
@@ -108,6 +108,7 @@ export default function DashboardPage() {
               <i /> Todos los sistemas operativos
             </span>
           </footer>
+
         </div>
       </section>
     </main>
