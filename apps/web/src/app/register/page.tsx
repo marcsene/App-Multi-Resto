@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getRestaurantDestination } from "@/lib/supabase/restaurant-access";
 import { UserRound, Mail, LockKeyhole } from "lucide-react";
 
 export default function RegisterPage() {
@@ -41,32 +42,39 @@ export default function RegisterPage() {
     try {
       const supabase = createClient();
 
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: {
-            full_name: fullName.trim(),
+      const { data, error: registerError } =
+        await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            data: {
+              full_name: fullName.trim(),
+            },
           },
-        },
-      });
+        });
 
-      if (error) {
-        setError(error.message);
+      if (registerError) {
+        setError(registerError.message);
         return;
       }
 
       if (data.session) {
-        router.replace("/dashboard");
+        const destination = await getRestaurantDestination();
+
+        router.replace(destination);
         router.refresh();
         return;
       }
 
       setSuccess(
-        "Tu cuenta fue creada. Revisa tu correo electrónico para confirmar el registro."
+        "Tu cuenta fue creada. Revisa tu correo electrónico para confirmar el registro. Después podrás iniciar sesión y configurar tu restaurante."
       );
-    } catch {
-      setError("No fue posible conectar con el servidor.");
+    } catch (err) {
+      console.error("Error durante el registro:", err);
+
+      setError(
+        "No fue posible completar el registro. Inténtalo nuevamente."
+      );
     } finally {
       setLoading(false);
     }
@@ -202,6 +210,7 @@ export default function RegisterPage() {
           >
             {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
+
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-400">

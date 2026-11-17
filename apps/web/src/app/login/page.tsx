@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { getRestaurantDestination } from "@/lib/supabase/restaurant-access";
 import { LockKeyhole, Mail } from "lucide-react";
 
 export default function LoginPage() {
@@ -24,28 +25,36 @@ export default function LoginPage() {
     try {
       const supabase = createClient();
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
 
-      if (error) {
+      if (loginError) {
         setError("Correo electrónico o contraseña incorrectos.");
         return;
       }
 
-      router.replace("/setup-restaurant");
+      const destination = await getRestaurantDestination();
+
+      router.replace(destination);
       router.refresh();
-    } catch {
-      setError("No fue posible conectar con el servidor.");
+    } catch (err) {
+      console.error("Error al iniciar sesión:", err);
+
+      setError(
+        "No fue posible completar el inicio de sesión. Inténtalo nuevamente."
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10">
       <section className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500 text-2xl font-bold text-white">
             M
@@ -61,6 +70,7 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
+
           <div>
             <label className="mb-2 block text-sm text-slate-300">
               Correo electrónico
@@ -102,7 +112,10 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p role="alert" className="rounded-lg bg-red-950 p-3 text-sm text-red-300">
+            <p
+              role="alert"
+              className="rounded-lg bg-red-950 p-3 text-sm text-red-300"
+            >
               {error}
             </p>
           )}
@@ -114,6 +127,7 @@ export default function LoginPage() {
           >
             {loading ? "Ingresando..." : "Iniciar sesión"}
           </button>
+
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-400">
@@ -125,6 +139,7 @@ export default function LoginPage() {
             Crear cuenta
           </Link>
         </p>
+
       </section>
     </main>
   );

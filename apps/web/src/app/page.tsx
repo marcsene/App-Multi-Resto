@@ -1,116 +1,112 @@
 
-"use client";
-
-import { useState } from "react";
-
-import Sidebar from "@/components/layout/Sidebar";
-import Topbar from "@/components/layout/Topbar";
-
-import StatsCards from "@/components/dashboard/StatsCards";
-import SalesChart from "@/components/dashboard/SalesChart";
-import ActivityPanel from "@/components/dashboard/ActivityPanel";
-import OrdersTable from "@/components/dashboard/OrdersTable";
-import TablesPanel from "@/components/dashboard/TablesPanel";
-
+import Link from "next/link";
 import {
-  CalendarDays,
-  Plus,
+  UtensilsCrossed,
+  ArrowRight,
+  ChefHat,
+  ClipboardList,
+  LayoutDashboard,
+  ShieldCheck,
 } from "lucide-react";
 
-export default function DashboardPage() {
-  const [activePage, setActivePage] = useState("Dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+export default function HomePage() {
   return (
-    <main className="dashboard-shell">
-      {sidebarOpen && (
-        <button
-          className="sidebar-overlay"
-          aria-label="Cerrar menú"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <main className="min-h-screen bg-slate-950 text-white">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
+            <UtensilsCrossed size={25} />
+          </span>
+          <strong className="text-xl">App-Multi-Resto</strong>
+        </Link>
 
-      <Sidebar
-        activePage={activePage}
-        sidebarOpen={sidebarOpen}
-        onNavigate={(page) => {
-          setActivePage(page);
-          setSidebarOpen(false);
-        }}
-        onClose={() => setSidebarOpen(false)}
-      />
+        <nav className="flex items-center gap-3">
+          <Link
+            href="/login"
+            className="rounded-lg px-4 py-2 text-sm text-slate-300"
+          >
+            Iniciar sesión
+          </Link>
+          <Link
+            href="/register"
+            className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold"
+          >
+            Crear cuenta
+          </Link>
+        </nav>
+      </header>
 
-      <section className="main-area">
-        <Topbar
-          activePage={activePage}
-          onMenuClick={() => setSidebarOpen(true)}
-        />
+      <section className="mx-auto grid max-w-7xl items-center gap-14 px-6 py-24 md:grid-cols-2">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm text-blue-300">
+            <ShieldCheck size={16} />
+            Una plataforma para tu restaurante
+          </span>
 
-        <div className="page-content">
+          <h1 className="mt-8 text-5xl font-bold leading-tight md:text-6xl">
+            Administra tu restaurante desde un solo lugar.
+          </h1>
 
-          {/* BIENVENIDA */}
-          <div className="welcome-row">
-            <div>
-              <p className="eyebrow">
-                MI RESTAURANTE · PANEL GENERAL
-              </p>
+          <p className="mt-6 text-lg leading-8 text-slate-400">
+            Organiza tus operaciones, gestiona tus pedidos y coordina tu equipo
+            con App-Multi-Resto.
+          </p>
 
-              <h1>
-                ¡Buenos días! <span>☀️</span>
-              </h1>
+          <div className="mt-9 flex flex-wrap gap-4">
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-7 py-4 font-semibold"
+            >
+              Comenzar ahora <ArrowRight size={19} />
+            </Link>
 
-              <p className="welcome-subtitle">
-                Aquí tienes el resumen de lo que sucede hoy en tu restaurante.
-              </p>
+            <Link
+              href="/login"
+              className="rounded-xl border border-slate-700 px-7 py-4 font-semibold"
+            >
+              Ya tengo una cuenta
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            {
+              title: "Pedidos",
+              description: "Organiza los pedidos.",
+              icon: ClipboardList,
+            },
+            {
+              title: "Operaciones",
+              description: "Coordina cocina y bar.",
+              icon: ChefHat,
+            },
+            {
+              title: "Administración",
+              description: "Gestiona tu negocio.",
+              icon: LayoutDashboard,
+            },
+            {
+              title: "Restaurantes",
+              description: "Administra tus establecimientos.",
+              icon: UtensilsCrossed,
+            },
+          ].map(({ title, description, icon: Icon }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-slate-800 bg-slate-900 p-7"
+            >
+              <Icon size={35} className="text-blue-400" />
+              <h2 className="mt-5 text-lg font-semibold">{title}</h2>
+              <p className="mt-2 text-sm text-slate-400">{description}</p>
             </div>
-
-            <div className="welcome-actions">
-              <button className="date-button">
-                <CalendarDays size={17} />
-                12 de noviembre, 2026
-              </button>
-
-              <button className="primary-button">
-                <Plus size={18} />
-                Nuevo pedido
-              </button>
-            </div>
-          </div>
-
-          {/* TARJETAS DE ESTADÍSTICAS */}
-          <StatsCards />
-
-          {/* GRÁFICO Y ACTIVIDAD */}
-          <div className="dashboard-grid">
-            <SalesChart />
-            <ActivityPanel />
-          </div>
-
-          {/* PEDIDOS Y MESAS */}
-          <div className="lower-grid">
-            <OrdersTable
-              onViewAll={() => setActivePage("Pedidos")}
-            />
-
-            <TablesPanel
-              onManageTables={() => setActivePage("Mesas")}
-            />
-          </div>
-
-          {/* PIE DE PÁGINA */}
-          <footer className="dashboard-footer">
-            <span>
-              © 2026 App-Multi-Resto. Todo tu restaurante, en un solo lugar.
-            </span>
-
-            <span>
-              <i /> Todos los sistemas operativos
-            </span>
-          </footer>
-
+          ))}
         </div>
       </section>
+
+      <footer className="border-t border-slate-800 px-6 py-7 text-center text-sm text-slate-500">
+        © 2026 App-Multi-Resto. Gestión inteligente para restaurantes.
+      </footer>
     </main>
   );
 }

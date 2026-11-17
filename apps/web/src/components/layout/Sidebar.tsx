@@ -46,6 +46,8 @@ const navigation = [
 interface SidebarProps {
   activePage: string;
   sidebarOpen: boolean;
+  restaurantName: string;
+  restaurantRole: string;
   onNavigate: (page: string) => void;
   onClose: () => void;
 }
@@ -53,6 +55,8 @@ interface SidebarProps {
 export default function Sidebar({
   activePage,
   sidebarOpen,
+  restaurantName,
+  restaurantRole,
   onNavigate,
   onClose,
 }: SidebarProps) {
@@ -78,11 +82,13 @@ export default function Sidebar({
       </div>
 
       <div className="restaurant-switch">
-        <div className="restaurant-avatar">R</div>
+        <div className="restaurant-avatar">
+          {restaurantName.charAt(0).toUpperCase() || "R"}
+        </div>
 
         <div className="restaurant-info">
-          <strong>Mi Restaurante</strong>
-          <span>Plan Profesional</span>
+          <strong>{restaurantName}</strong>
+          <span>Rol: {restaurantRole}</span>
         </div>
 
         <ChevronDown size={16} />
@@ -137,7 +143,7 @@ export default function Sidebar({
 
           <div className="profile-info">
             <strong>Administrador</strong>
-            <span>admin@restaurante.cl</span>
+            <span>Cuenta de usuario</span>
           </div>
 
           <button aria-label="Cerrar sesión">

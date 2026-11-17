@@ -1,4 +1,4 @@
-
+﻿
 "use client";
 
 import { useState } from "react";
@@ -50,7 +50,7 @@ export default function SetupRestaurantPage() {
     }
 
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
-      setError("El identificador solo admite letras minúsculas, números y guiones.");
+      setError("El identificador solo admite letras min├║sculas, n├║meros y guiones.");
       return;
     }
 
@@ -59,7 +59,7 @@ export default function SetupRestaurantPage() {
     try {
       const supabase = createClient();
 
-      // Confirmar que existe una sesión autenticada.
+      // Confirmar que existe una sesi├│n autenticada.
       const {
         data: { user },
         error: userError,
@@ -71,7 +71,7 @@ export default function SetupRestaurantPage() {
       }
 
       // Crear restaurante, asignar administrador
-      // y activar la prueba gratuita mediante una sola función.
+      // y activar la prueba gratuita mediante una sola funci├│n.
       const { data, error: createError } = await supabase.rpc(
         "create_restaurant_with_admin",
         {
@@ -85,7 +85,7 @@ export default function SetupRestaurantPage() {
 
       if (createError) {
         if (createError.code === "23505") {
-          setError("Este identificador ya está utilizado. Prueba con otro.");
+          setError("Este identificador ya est├í utilizado. Prueba con otro.");
         } else {
           setError(createError.message);
         }
@@ -94,7 +94,7 @@ export default function SetupRestaurantPage() {
       }
 
       if (!data) {
-        setError("No se recibió la confirmación del restaurante.");
+        setError("No se recibi├│ la confirmaci├│n del restaurante.");
         return;
       }
 
@@ -127,11 +127,11 @@ export default function SetupRestaurantPage() {
 
         <div className="mb-7 rounded-xl border border-orange-500/30 bg-orange-500/10 p-4">
           <p className="font-semibold text-orange-400">
-            ¡7 días de prueba gratuita!
+            ┬í7 d├¡as de prueba gratuita!
           </p>
 
           <p className="mt-1 text-sm text-slate-300">
-            Tu período de prueba se activará automáticamente al crear tu restaurante.
+            Tu per├¡odo de prueba se activar├í autom├íticamente al crear tu restaurante.
           </p>
         </div>
 
@@ -173,13 +173,13 @@ export default function SetupRestaurantPage() {
             />
 
             <p className="mt-2 text-xs text-slate-500">
-              Se utilizará para identificar tu restaurante dentro de la plataforma.
+              Se utilizar├í para identificar tu restaurante dentro de la plataforma.
             </p>
           </div>
 
           <div>
             <label className="mb-2 block text-sm text-slate-300">
-              País
+              Pa├¡s
             </label>
 
             <div className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800 px-4">
@@ -214,7 +214,7 @@ export default function SetupRestaurantPage() {
                 <option value="CL">Chile</option>
                 <option value="US">Estados Unidos</option>
                 <option value="FR">Francia</option>
-                <option value="ES">España</option>
+                <option value="ES">Espa├▒a</option>
                 <option value="BR">Brasil</option>
               </select>
             </div>
@@ -234,9 +234,9 @@ export default function SetupRestaurantPage() {
                 className="w-full bg-transparent py-3 text-white outline-none"
               >
                 <option value="CLP">CLP - Peso chileno</option>
-                <option value="USD">USD - Dólar estadounidense</option>
+                <option value="USD">USD - D├│lar estadounidense</option>
                 <option value="EUR">EUR - Euro</option>
-                <option value="BRL">BRL - Real brasileño</option>
+                <option value="BRL">BRL - Real brasile├▒o</option>
               </select>
             </div>
           </div>
@@ -256,9 +256,9 @@ export default function SetupRestaurantPage() {
               >
                 <option value="America/Santiago">Santiago</option>
                 <option value="America/New_York">Nueva York</option>
-                <option value="Europe/Paris">París</option>
+                <option value="Europe/Paris">Par├¡s</option>
                 <option value="Europe/Madrid">Madrid</option>
-                <option value="America/Sao_Paulo">São Paulo</option>
+                <option value="America/Sao_Paulo">S├úo Paulo</option>
               </select>
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function SetupRestaurantPage() {
         </form>
 
         <p className="mt-5 text-center text-xs text-slate-500">
-          Al continuar, se creará tu restaurante y quedarás registrado como su administrador.
+          Al continuar, se crear├í tu restaurante y quedar├ís registrado como su administrador.
         </p>
       </section>
     </main>
