@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import TablesManagement from "@/components/dashboard/TablesManagement";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import ProductsManagement from "@/components/dashboard/ProductsManagement";
@@ -154,12 +154,7 @@ function renderSection() {
       );
 
     case "Mesas":
-      // Aquí conserva tu contenido actual de mesas.
-      return (
-        <>
-          <TablesPanel onManageTables={() => {}} />
-        </>
-      );
+  return <TablesManagement />;
 
     default:
       // Aquí conserva tu contenido actual de módulo en preparación.
