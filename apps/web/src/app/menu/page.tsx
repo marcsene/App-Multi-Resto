@@ -105,75 +105,84 @@ export default function PublicMenuPage() {
   // CARGA DEL MENÚ PÚBLICO
   // =========================================================
 
-  useEffect(() => {
-    let cancelled = false;
 
-    async function loadMenu() {
-      const qrToken = new URLSearchParams(
-        window.location.search
-      ).get("table");
+useEffect(() => {
+  let cancelled = false;
+  let timeoutId: ReturnType<typeof setTimeout>;
 
-      if (!qrToken) {
-        setError("No se encontró el código QR de la mesa.");
-        setLoading(false);
-        return;
-      }
+  async function loadMenu() {
+    const qrToken = new URLSearchParams(
+      window.location.search
+    ).get("table");
 
-      try {
-        const supabase = createClient();
-
-        const request = supabase.rpc(
-          "get_public_menu_by_qr",
-          {
-            p_qr_token: qrToken,
-          }
-        );
-
-        const timeout = new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(
-              new Error(
-                "La petición tardó demasiado. Revisa tu conexión."
-              )
-            );
-          }, 15000);
-        });
-
-        const { data, error: rpcError } =
-          await Promise.race([request, timeout]);
-
-        if (rpcError) throw rpcError;
-
-        if (!data) {
-          throw new Error(
-            "No encontramos el menú asociado a este QR."
-          );
-        }
-
-        if (!cancelled) {
-          setMenu(data as PublicMenu);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "No pudimos cargar el menú."
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
+    if (!qrToken) {
+      setError("No se encontró el código QR de la mesa.");
+      setLoading(false);
+      return;
     }
 
-    loadMenu();
+    try {
+      const supabase = createClient();
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+      const request = supabase.rpc(
+        "get_public_menu_by_qr",
+        {
+          p_qr_token: qrToken,
+        }
+      );
+
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(
+            new Error(
+              "La petición tardó demasiado. Revisa tu conexión."
+            )
+          );
+        }, 15000);
+      });
+
+      const { data, error: rpcError } =
+        await Promise.race([request, timeout]);
+
+      if (rpcError) throw rpcError;
+
+      if (!data) {
+        throw new Error(
+          "No encontramos el menú asociado a este QR."
+        );
+      }
+
+      if (!cancelled) {
+        setMenu(data as PublicMenu);
+        setError("");
+      }
+    } catch (err: unknown) {
+      console.error("ERROR AL CARGAR EL MENÚ:", err);
+
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "No pudimos cargar el menú. Intenta nuevamente.";
+
+      if (!cancelled) {
+        setError(errorMessage);
+      }
+    } finally {
+      clearTimeout(timeoutId);
+
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+  }
+
+  loadMenu();
+
+  return () => {
+    cancelled = true;
+    clearTimeout(timeoutId);
+  };
+}, []);
 
   // =========================================================
   // FILTRAR PRODUCTOS
@@ -344,12 +353,37 @@ export default function PublicMenuPage() {
       setOrderResult(result);
       setCart([]);
       setDrawerView("success");
-    } catch (err) {
-      setCheckoutError(
-        err instanceof Error
-          ? err.message
-          : "No pudimos enviar el pedido. Intenta nuevamente."
-      );
+   
+    } catch (err: unknown) {
+      console.error("ERROR COMPLETO AL ENVIAR PEDIDO:", err);
+
+      let errorMessage = "Error desconocido al enviar el pedido.";
+
+      if (typeof err === "object" && err !== null) {
+        const supabaseError = err as {
+          message?: string;
+          details?: string;
+          hint?: string;
+          code?: string;
+        };
+
+        errorMessage = [
+          supabaseError.message,
+          supabaseError.details,
+          supabaseError.hint,
+          supabaseError.code
+            ? `Código: ${supabaseError.code}`
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" | ");
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+
+      setCheckoutError(errorMessage);
     } finally {
       setSendingOrder(false);
     }
@@ -801,163 +835,102 @@ export default function PublicMenuPage() {
 
             {/* FORMULARIO DE CONFIRMACIÓN */}
 
-            {drawerView === "checkout" && (
-              <form
-                className="menu-checkout-form"
-                onSubmit={submitOrder}
-              >
-                {/* RESUMEN */}
+          
 
-                <div className="menu-checkout-summary">
-                  <div className="menu-checkout-summary-title">
-                    <ClipboardList size={20} />
-                    <strong>Resumen del pedido</strong>
-                  </div>
+{drawerView === "checkout" && (
+  <form
+    id="menu-checkout-form"
+    className="menu-checkout-form"
+    onSubmit={submitOrder}
+  >
+    <div className="menu-checkout-body">
+      <div className="menu-checkout-summary">
+        <h3>Resumen de tu pedido</h3>
 
-                  {cart.map((item) => (
-                    <div
-                      className="menu-checkout-summary-row"
-                      key={item.product.id}
-                    >
-                      <span>
-                        {item.quantity} × {item.product.name}
-                      </span>
+        {cart.map((item) => (
+          <div
+            key={item.product.id}
+            className="menu-checkout-summary-item"
+          >
+            <span>
+              {item.quantity} × {item.product.name}
+            </span>
+            <strong>
+              {formatPrice(item.product.price * item.quantity)}
+            </strong>
+          </div>
+        ))}
 
-                      <strong>
-                        {formatPrice(
-                          item.product.price *
-                            item.quantity
-                        )}
-                      </strong>
-                    </div>
-                  ))}
+        <div className="menu-checkout-summary-total">
+          <span>Total</span>
+          <strong>{formatPrice(cartTotal)}</strong>
+        </div>
+      </div>
 
-                  <div className="menu-checkout-summary-total">
-                    <span>Total</span>
+      <label className="menu-checkout-field">
+        Nombre
+        <input
+          type="text"
+          value={customerName}
+          onChange={(event) => setCustomerName(event.target.value)}
+          placeholder="Tu nombre"
+          required
+        />
+      </label>
 
-                    <strong>
-                      {formatPrice(cartTotal)}
-                    </strong>
-                  </div>
-                </div>
+      <label className="menu-checkout-field">
+        Teléfono
+        <input
+          type="tel"
+          value={customerPhone}
+          onChange={(event) => setCustomerPhone(event.target.value)}
+          placeholder="Tu teléfono"
+          required
+        />
+      </label>
 
-                {/* RESPONSABLE */}
+      <label className="menu-checkout-field">
+        Observaciones
+        <textarea
+          value={orderNotes}
+          onChange={(event) => setOrderNotes(event.target.value)}
+          placeholder="Alguna observación..."
+        />
+      </label>
 
-                <label className="menu-checkout-field">
-                  <span>
-                    <User size={17} />
-                    Nombre del responsable *
-                  </span>
+      <div className="menu-checkout-table-notice">
+        <MapPin size={16} />
+        Mesa {menu.table.table_number}
+      </div>
 
-                  <input
-                    value={customerName}
-                    onChange={(event) =>
-                      setCustomerName(event.target.value)
-                    }
-                    placeholder="¿Quién está a cargo?"
-                    maxLength={150}
-                    required
-                  />
-                </label>
+      {checkoutError && (
+        <div className="menu-checkout-error">
+          {checkoutError}
+        </div>
+      )}
+    </div>
 
-                {/* TELÉFONO */}
+    <div className="menu-checkout-footer">
+      <button
+        className="menu-checkout-button"
+        type="submit"
+        disabled={sendingOrder}
+      >
+        {sendingOrder
+          ? "Enviando pedido..."
+          : `Confirmar y enviar · ${formatPrice(cartTotal)}`}
+      </button>
 
-                <label className="menu-checkout-field">
-                  <span>
-                    <Phone size={17} />
-                    Teléfono (opcional)
-                  </span>
-
-                  <input
-                    value={customerPhone}
-                    onChange={(event) =>
-                      setCustomerPhone(event.target.value)
-                    }
-                    placeholder="Número de contacto"
-                    maxLength={30}
-                    inputMode="tel"
-                  />
-                </label>
-
-                {/* OBSERVACIONES */}
-
-                <label className="menu-checkout-field">
-                  <span>
-                    <MessageSquare size={17} />
-                    Comentarios (opcional)
-                  </span>
-
-                  <textarea
-                    value={orderNotes}
-                    onChange={(event) =>
-                      setOrderNotes(event.target.value)
-                    }
-                    placeholder="Ej.: sin cebolla, alergias o indicaciones..."
-                    rows={3}
-                    maxLength={1000}
-                  />
-                </label>
-
-                {/* MESA */}
-
-                <div className="menu-checkout-table-notice">
-                  <MapPin size={17} />
-
-                  Pedido para Mesa{" "}
-                  {menu.table.table_number}
-
-                  {menu.table.name
-                    ? ` · ${menu.table.name}`
-                    : ""}
-                </div>
-
-                {/* ERROR */}
-
-                {checkoutError && (
-                  <div className="menu-checkout-error">
-                    <AlertCircle size={18} />
-
-                    <span>{checkoutError}</span>
-                  </div>
-                )}
-
-                {/* ENVIAR */}
-
-                <button
-                  className="menu-checkout-button"
-                  type="submit"
-                  disabled={sendingOrder}
-                >
-                  {sendingOrder ? (
-                    <>
-                      <LoaderCircle
-                        size={19}
-                        className="menu-loader"
-                      />
-                      Enviando pedido...
-                    </>
-                  ) : (
-                    `Confirmar y enviar · ${formatPrice(
-                      cartTotal
-                    )}`
-                  )}
-                </button>
-
-                {/* VOLVER */}
-
-                <button
-                  className="menu-checkout-back"
-                  type="button"
-                  onClick={() => {
-                    setCheckoutError("");
-                    setDrawerView("cart");
-                  }}
-                  disabled={sendingOrder}
-                >
-                  Volver al carrito
-                </button>
-              </form>
-            )}
+      <button
+        className="menu-checkout-back"
+        type="button"
+        onClick={() => setDrawerView("cart")}
+      >
+        Volver al carrito
+      </button>
+    </div>
+  </form>
+)}
 
             {/* PEDIDO CONFIRMADO */}
 

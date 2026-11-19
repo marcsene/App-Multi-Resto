@@ -2646,15 +2646,104 @@ button {
 
 @media (max-width: 768px) {
 
+  
+/* =========================================
+   CHECKOUT RESPONSIVE - ESTRUCTURA FIJA
+========================================= */
+
+.menu-cart-overlay {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  z-index: 9999;
+}
+
+.menu-cart-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.menu-cart-header {
+  flex: 0 0 auto;
+}
+
+/* Formulario: ocupa el espacio disponible */
+.menu-checkout-form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  gap: 0;
+}
+
+/* Solo esta zona se desplaza */
+.menu-checkout-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 15px 0 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Pie independiente: siempre visible */
+.menu-checkout-footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 1px solid #e9edf3;
+  z-index: 10;
+}
+
+.menu-checkout-footer .menu-checkout-button {
+  width: 100%;
+  min-height: 58px;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.menu-checkout-footer .menu-checkout-back {
+  width: 100%;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Evita zoom automático en teléfonos */
+.menu-checkout-field input,
+.menu-checkout-field textarea {
+  font-size: 16px;
+}
+
+/* Ajustes para celulares */
+@media (max-width: 768px) {
   .menu-cart-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    height: 100dvh !important;
-    overflow: hidden !important;
-    display: flex !important;
-    align-items: stretch !important;
-    z-index: 9999 !important;
+    height: 100dvh;
   }
+
+  .menu-cart-drawer {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding-bottom: 0;
+  }
+
+  .menu-checkout-footer {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+}
+
 
   .menu-cart-drawer {
     position: relative !important;
