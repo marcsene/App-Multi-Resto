@@ -61,6 +61,11 @@ export interface Order {
   customer_name: string | null;
   customer_phone: string | null;
   table_label: string | null;
+
+  // Identificadores de mesa y sesión para el módulo Caja.
+  table_id: string | null;
+  table_session_id: string | null;
+
   source: "staff" | "qr" | "online";
   status: OrderStatus;
   currency: string;
@@ -92,6 +97,8 @@ export async function getOrders(): Promise<Order[]> {
       customer_name,
       customer_phone,
       table_label,
+      table_id,
+      table_session_id,
       source,
       status,
       currency,
@@ -140,7 +147,7 @@ export async function createOrder(
   }
 
   if (input.items.length > 100) {
-    throw new Error("El pedido supera el mÃ¡ximo de productos permitido.");
+    throw new Error("El pedido supera el máximo de productos permitido.");
   }
 
   const supabase = createClient();
@@ -164,7 +171,7 @@ export async function createOrder(
   }
 
   if (!data) {
-    throw new Error("Supabase no devolviÃ³ el identificador del pedido.");
+    throw new Error("Supabase no devolvió el identificador del pedido.");
   }
 
   return data as string;
@@ -219,6 +226,3 @@ export async function updateOrderItemStatus(
     );
   }
 }
-
-
-

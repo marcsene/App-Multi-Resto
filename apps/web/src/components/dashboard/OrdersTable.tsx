@@ -19,30 +19,12 @@ const statusConfig: Record<
   OrderStatus,
   { label: string; color: string }
 > = {
-  pending: {
-    label: "Pendiente",
-    color: "blue",
-  },
-  confirmed: {
-    label: "Confirmado",
-    color: "blue",
-  },
-  preparing: {
-    label: "Preparando",
-    color: "amber",
-  },
-  ready: {
-    label: "Listo",
-    color: "green",
-  },
-  delivered: {
-    label: "Entregado",
-    color: "green",
-  },
-  cancelled: {
-    label: "Cancelado",
-    color: "amber",
-  },
+  pending: { label: "Pendiente", color: "blue" },
+  confirmed: { label: "Confirmado", color: "blue" },
+  preparing: { label: "Preparando", color: "amber" },
+  ready: { label: "Listo", color: "green" },
+  delivered: { label: "Entregado", color: "green" },
+  cancelled: { label: "Cancelado", color: "amber" },
 };
 
 function formatCurrency(value: number, currency: string) {
@@ -77,7 +59,6 @@ export default function OrdersTable({
       setError("");
 
       const data = await getOrders();
-
       setOrders(data);
     } catch (err) {
       console.error("Error cargando pedidos:", err);
@@ -135,7 +116,7 @@ export default function OrdersTable({
     : orders.slice(0, 4);
 
   return (
-    <section className="panel orders-panel">
+    <section className="panel orders-panel orders-table-enhanced">
       <div className="panel-heading">
         <div>
           <h2>
@@ -149,7 +130,7 @@ export default function OrdersTable({
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        <div className="orders-actions">
           <button
             className="more-button"
             aria-label="Actualizar pedidos"
@@ -158,7 +139,7 @@ export default function OrdersTable({
             title="Actualizar"
           >
             <RefreshCw
-              size={17}
+              size={20}
               className={refreshing ? "spin" : ""}
             />
           </button>
@@ -168,19 +149,19 @@ export default function OrdersTable({
               className="text-action"
               onClick={onViewAll}
             >
-              Ver todos <ArrowUpRight size={15} />
+              Ver todos <ArrowUpRight size={18} />
             </button>
           )}
         </div>
       </div>
 
       {loading ? (
-        <div style={{ padding: "32px", textAlign: "center" }}>
+        <div className="orders-message">
           Cargando pedidos del restaurante...
         </div>
       ) : error ? (
-        <div style={{ padding: "24px" }}>
-          <p style={{ color: "#dc2626" }}>{error}</p>
+        <div className="orders-message">
+          <p className="orders-error">{error}</p>
 
           <button
             className="text-action"
@@ -190,7 +171,7 @@ export default function OrdersTable({
           </button>
         </div>
       ) : orders.length === 0 ? (
-        <div style={{ padding: "32px", textAlign: "center" }}>
+        <div className="orders-message">
           <h3>No hay pedidos todavía</h3>
           <p>
             Cuando registres un pedido, aparecerá aquí.
@@ -212,35 +193,31 @@ export default function OrdersTable({
             <tbody>
               {visibleOrders.map((order) => {
                 const status = statusConfig[order.status];
-
                 const itemCount = order.order_items?.length ?? 0;
 
                 return (
                   <tr key={order.id}>
                     <td>
-                      <strong>
+                      <strong className="order-number">
                         #{order.order_number}
                       </strong>
 
-                      <span>
+                      <span className="order-item-count">
                         {itemCount}{" "}
                         {itemCount === 1 ? "producto" : "productos"}
                       </span>
                     </td>
 
-                    <td>
+                    <td className="order-customer">
                       {order.customer_name || "Cliente sin nombre"}
                     </td>
 
-                    <td>
+                    <td className="order-table-label">
                       {order.table_label || "Sin mesa"}
                     </td>
 
                     <td className="order-total">
-                      {formatCurrency(
-                        order.total,
-                        order.currency
-                      )}
+                      {formatCurrency(order.total, order.currency)}
                     </td>
 
                     <td>
@@ -258,6 +235,121 @@ export default function OrdersTable({
           </table>
         </div>
       )}
+
+      <style jsx global>{`
+        .orders-table-enhanced .panel-heading h2 {
+          font-size: 21px !important;
+          font-weight: 700 !important;
+        }
+
+        .orders-table-enhanced .panel-heading p {
+          font-size: 14px !important;
+        }
+
+        .orders-table-enhanced .orders-actions {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .orders-table-enhanced .orders-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .orders-table-enhanced .orders-table thead th {
+          font-size: 14px !important;
+          font-weight: 700 !important;
+          padding: 17px 12px !important;
+          letter-spacing: 0.04em;
+        }
+
+        .orders-table-enhanced .orders-table tbody td {
+          font-size: 16px !important;
+          padding: 19px 12px !important;
+          line-height: 1.5;
+        }
+
+        .orders-table-enhanced .order-number {
+          display: block;
+          font-size: 17px !important;
+          font-weight: 800 !important;
+        }
+
+        .orders-table-enhanced .order-item-count {
+          display: block;
+          margin-top: 5px;
+          font-size: 14px !important;
+        }
+
+        .orders-table-enhanced .order-customer,
+        .orders-table-enhanced .order-table-label {
+          font-size: 16px !important;
+          font-weight: 500;
+        }
+
+        .orders-table-enhanced .order-total {
+          font-size: 17px !important;
+          font-weight: 800 !important;
+          white-space: nowrap;
+        }
+
+        .orders-table-enhanced .status-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px !important;
+          font-size: 14px !important;
+          font-weight: 700 !important;
+          border-radius: 8px;
+          white-space: nowrap;
+        }
+
+        .orders-table-enhanced .status-pill i {
+          width: 8px;
+          height: 8px;
+          flex-shrink: 0;
+        }
+
+        .orders-table-enhanced .orders-message {
+          padding: 32px 20px;
+          text-align: center;
+          font-size: 16px;
+        }
+
+        .orders-table-enhanced .orders-message h3 {
+          font-size: 19px;
+          margin-bottom: 8px;
+        }
+
+        .orders-table-enhanced .orders-error {
+          color: #dc2626;
+          font-size: 16px;
+        }
+
+        .orders-table-enhanced .more-button svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        .orders-table-enhanced .text-action {
+          font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+          .orders-table-enhanced .table-scroll {
+            overflow-x: auto;
+          }
+
+          .orders-table-enhanced .orders-table {
+            min-width: 650px;
+          }
+
+          .orders-table-enhanced .orders-table tbody td {
+            padding: 15px 10px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

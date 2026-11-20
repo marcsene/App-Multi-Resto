@@ -1,6 +1,6 @@
 ﻿
 "use client";
-
+import CajaManagement from "@/components/dashboard/CajaManagement";
 import { useEffect, useState } from "react";
 import TablesManagement from "@/components/dashboard/TablesManagement";
 import Sidebar from "@/components/layout/Sidebar";
@@ -11,7 +11,7 @@ import SalesChart from "@/components/dashboard/SalesChart";
 import ActivityPanel from "@/components/dashboard/ActivityPanel";
 import OrdersTable from "@/components/dashboard/OrdersTable";
 import TablesPanel from "@/components/dashboard/TablesPanel";
-
+import { useRouter } from "next/navigation";
 import {
   CalendarDays,
   Plus,
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [activePage, setActivePage] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -140,6 +141,8 @@ function renderSection() {
   switch (activePage) {
     case "Dashboard":
       return renderDashboard();
+      case "Caja":
+  return <CajaManagement />;
 
     case "Menú y productos":
       return <ProductsManagement />;
@@ -183,10 +186,21 @@ function renderSection() {
         sidebarOpen={sidebarOpen}
         restaurantName={restaurantName}
         restaurantRole={restaurantRole}
-        onNavigate={(page) => {
-          setActivePage(page);
-          setSidebarOpen(false);
-        }}
+       onNavigate={(page) => {
+  setSidebarOpen(false);
+
+  if (page === "Cocina") {
+    router.push("/dashboard/kitchen");
+    return;
+  }
+
+  if (page === "Bar") {
+    router.push("/dashboard/bar");
+    return;
+  }
+
+  setActivePage(page);
+}}
         onClose={() => setSidebarOpen(false)}
       />
 

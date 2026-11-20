@@ -9,6 +9,7 @@ import {
   Armchair,
   ChefHat,
   BarChart3,
+  WalletCards,
   Settings,
   CircleAlert,
   ChevronDown,
@@ -34,9 +35,10 @@ const navigation = [
       { label: "Clientes", icon: Users },
     ],
   },
-  {
+   {
     title: "GESTIÓN",
     items: [
+      { label: "Caja", icon: WalletCards },
       { label: "Reportes", icon: BarChart3 },
       { label: "Configuración", icon: Settings },
     ],

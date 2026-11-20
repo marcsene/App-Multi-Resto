@@ -1,7 +1,9 @@
 
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+
 import {
   GlassWater,
   Clock,
@@ -36,6 +38,8 @@ type Order = {
 };
 
 export default function BarPage() {
+  const router = useRouter();
+
   const [restaurantId, setRestaurantId] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,7 +248,14 @@ export default function BarPage() {
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => router.push("/dashboard")}
+             className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
+              ← Volver al panel
+            </button>
+
             <div className="rounded-xl bg-purple-100 p-3 text-purple-600">
               <GlassWater size={28} />
             </div>
@@ -373,15 +384,15 @@ export default function BarPage() {
                             item.item_status === "pending"
                               ? "bg-orange-100 text-orange-700"
                               : item.item_status === "preparing"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-green-100 text-green-700"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-green-100 text-green-700"
                           }`}
                         >
                           {item.item_status === "pending"
                             ? "Pendiente"
                             : item.item_status === "preparing"
-                            ? "En preparación"
-                            : "Listo"}
+                              ? "En preparación"
+                              : "Listo"}
                         </span>
                       </div>
 
@@ -404,9 +415,7 @@ export default function BarPage() {
                         {item.item_status === "preparing" && (
                           <button
                             disabled={busyItem === item.id}
-                            onClick={() =>
-                              updateItemStatus(item.id, "ready")
-                            }
+                            onClick={() => updateItemStatus(item.id, "ready")}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white hover:bg-green-700 disabled:opacity-50"
                           >
                             <CheckCircle2 size={18} />

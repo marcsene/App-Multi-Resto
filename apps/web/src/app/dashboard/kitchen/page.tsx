@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ChefHat,
   Clock,
@@ -36,6 +37,8 @@ type Order = {
 };
 
 export default function KitchenPage() {
+  const router = useRouter();
+
   const [restaurantId, setRestaurantId] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,19 +247,25 @@ export default function KitchenPage() {
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-orange-100 p-3 text-orange-600">
-                <ChefHat size={28} />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-                  Cocina
-                </h1>
-                <p className="text-sm text-slate-500">
-                  Gestión de pedidos y preparación
-                </p>
-              </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => router.push("/dashboard")}
+             className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
+              ← Volver al panel
+            </button>
+
+            <div className="rounded-xl bg-orange-100 p-3 text-orange-600">
+              <ChefHat size={28} />
+            </div>
+
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
+                Cocina
+              </h1>
+              <p className="text-sm text-slate-500">
+                Gestión de pedidos y preparación
+              </p>
             </div>
           </div>
 
@@ -374,15 +383,15 @@ export default function KitchenPage() {
                             item.item_status === "pending"
                               ? "bg-orange-100 text-orange-700"
                               : item.item_status === "preparing"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-green-100 text-green-700"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-green-100 text-green-700"
                           }`}
                         >
                           {item.item_status === "pending"
                             ? "Pendiente"
                             : item.item_status === "preparing"
-                            ? "En preparación"
-                            : "Listo"}
+                              ? "En preparación"
+                              : "Listo"}
                         </span>
                       </div>
 
@@ -405,9 +414,7 @@ export default function KitchenPage() {
                         {item.item_status === "preparing" && (
                           <button
                             disabled={busyItem === item.id}
-                            onClick={() =>
-                              updateItemStatus(item.id, "ready")
-                            }
+                            onClick={() => updateItemStatus(item.id, "ready")}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white hover:bg-green-700 disabled:opacity-50"
                           >
                             <CheckCircle2 size={18} />
